@@ -13,19 +13,22 @@ import math
 import random
 
 from config import (
-    INITIAL_TEMPERATURE,
-    COOLING_RATE,
-    MIN_TEMPERATURE,
-    MAX_SA_ITERATIONS,
+    DEFAULT_INITIAL_TEMPERATURE,
+    DEFAULT_MIN_TEMPERATURE,
+    DEFAULT_MAX_SA_ITERATIONS,
     WAREHOUSE_CITY,
 )
 
 
 class SimulatedAnnealing:
 
-    def __init__(self, routes):
-
+    def __init__(
+        self,
+        routes,
+        cooling_rate,
+    ):
         self.routes = routes
+        self.cooling_rate = cooling_rate
 
     # =====================================================
     # PUBLIC
@@ -54,13 +57,13 @@ class SimulatedAnnealing:
 
         best_cost = current_cost
 
-        temperature = INITIAL_TEMPERATURE
+        temperature = DEFAULT_INITIAL_TEMPERATURE
 
         while (
-            temperature > MIN_TEMPERATURE
+            temperature > DEFAULT_MIN_TEMPERATURE
         ):
 
-            for _ in range(MAX_SA_ITERATIONS):
+            for _ in range(DEFAULT_MAX_SA_ITERATIONS):
 
                 candidate = self.neighbor(current_route)
 
@@ -91,7 +94,7 @@ class SimulatedAnnealing:
 
                         current_cost = candidate_cost
 
-            temperature *= COOLING_RATE
+            temperature *= self.cooling_rate
 
         return best_route
 

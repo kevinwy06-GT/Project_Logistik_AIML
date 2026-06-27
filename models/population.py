@@ -14,7 +14,12 @@ class Population:
     def __init__(self):
         self.chromosomes = []
 
-    def initialize(self, goods_count, truck_count):
+    def initialize(
+        self,
+        goods_count,
+        truck_count,
+        population_size,
+    ):
         """
         Creates the initial random population.
         """
@@ -25,7 +30,7 @@ class Population:
 
         from config import POPULATION_SIZE
 
-        for _ in range(POPULATION_SIZE):
+        for _ in range(population_size):
 
             truck_assignment = [
                 random.randint(0, warehouse_id)

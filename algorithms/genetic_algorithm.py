@@ -5,8 +5,7 @@ Main Genetic Algorithm engine.
 """
 
 from config import (
-    GENERATIONS,
-    ELITE_COUNT,
+    DEFAULT_ELITE_COUNT,
 )
 
 from models.population import Population
@@ -20,11 +19,24 @@ from algorithms.fitness import FitnessCalculator
 
 class GeneticAlgorithm:
 
-    def __init__(self, goods, trucks, routes):
+    def __init__(
+        self,
+        goods,
+        trucks,
+        routes,
+        population_size,
+        generations,
+        mutation_rate,
+    ):
 
         self.goods = goods
         self.trucks = trucks
         self.routes = routes
+
+        self.population_size = population_size
+        self.generations = generations
+        self.mutation_rate = mutation_rate
+        self.elite_count = DEFAULT_ELITE_COUNT
 
         self.population = Population()
 
@@ -42,7 +54,8 @@ class GeneticAlgorithm:
 
         self.population.initialize(
             goods_count=len(self.goods),
-            truck_count=len(self.trucks)
+            truck_count=len(self.trucks),
+            population_size=self.population_size,
         )
 
     # ==========================================================
@@ -68,7 +81,7 @@ class GeneticAlgorithm:
         # Elitism
         # ---------------------------------------
 
-        for i in range(ELITE_COUNT):
+        for i in range(self.elite_count):
             new_population.add(
                 self.population.chromosomes[i].copy()
             )
@@ -89,12 +102,14 @@ class GeneticAlgorithm:
 
             child1 = Mutation.mutate(
                 child1,
-                len(self.trucks)
+                len(self.trucks),
+                self.mutation_rate
             )
 
             child2 = Mutation.mutate(
                 child2,
-                len(self.trucks)
+                len(self.trucks),
+                self.mutation_rate
             )
 
             new_population.add(child1)
@@ -114,7 +129,7 @@ class GeneticAlgorithm:
 
         history = []
 
-        for generation in range(GENERATIONS):
+        for generation in range(self.generations):
 
             self.evaluate_population()
 
@@ -122,7 +137,7 @@ class GeneticAlgorithm:
 
             history.append(best.fitness)
 
-            if generation != GENERATIONS - 1:
+            if generation != self.generations - 1:
                 self.create_next_generation()
 
         self.evaluate_population()
@@ -133,7 +148,7 @@ class GeneticAlgorithm:
 
         result.best_chromosome = best.copy()
 
-        result.generations = GENERATIONS
+        result.generations = self.generations
 
         result.fitness_history = history
 
@@ -141,7 +156,34 @@ class GeneticAlgorithm:
 
         result.rejected_goods = self._build_rejected_goods(best)
 
+        # =====================================================
+        # Build Business Summary
+        # =====================================================
+
+        summary = self.fitness_calculator.build_summary(best)
+
+        result.total_distance = summary["total_distance"]
+
+        result.total_operating_cost = summary["total_operating_cost"]
+
+        result.total_toll_cost = summary["total_toll_cost"]
+
+        result.total_revenue = summary["total_revenue"]
+
+        result.net_profit = summary["net_profit"]
+
+        result.truck_utilization = summary["truck_utilization"]
+
+        result.truck_distance = summary["truck_distance"]
+
+        result.truck_profit = summary["truck_profit"]
+
+        result.truck_weight = summary["truck_weight"]
+
+        result.truck_volume = summary["truck_volume"]
+
         return result
+
 
     # ==========================================================
     # HELPERS

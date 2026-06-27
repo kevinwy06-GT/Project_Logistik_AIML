@@ -1,8 +1,7 @@
 """
 result.py
 
-Stores the complete optimization result that will be displayed
-by the Streamlit dashboard.
+Stores the complete optimization result.
 """
 
 from dataclasses import dataclass, field
@@ -11,9 +10,9 @@ from dataclasses import dataclass, field
 @dataclass
 class OptimizationResult:
 
-    # ===============================
+    # ==================================================
     # Genetic Algorithm
-    # ===============================
+    # ==================================================
 
     best_chromosome: object = None
 
@@ -21,36 +20,50 @@ class OptimizationResult:
 
     generations: int = 0
 
-    # ===============================
-    # Allocation
-    # ===============================
+    # ==================================================
+    # Assignment
+    # ==================================================
 
     truck_assignments: dict = field(default_factory=dict)
 
     rejected_goods: list = field(default_factory=list)
 
-    # ===============================
-    # Routing
-    # ===============================
-
     routes: dict = field(default_factory=dict)
 
-    # ===============================
-    # Financial Summary
-    # ===============================
+    # ==================================================
+    # Financial Information
+    # ==================================================
 
-    total_revenue: float = 0
+    total_revenue: float = 0.0
 
-    total_operating_cost: float = 0
+    total_operating_cost: float = 0.0
 
-    total_toll: float = 0
+    total_toll_cost: float = 0.0
 
-    net_profit: float = 0
+    total_distance: float = 0.0
 
-    # ===============================
-    # Statistics
-    # ===============================
+    net_profit: float = 0.0
 
-    total_distance: float = 0
+    # ==================================================
+    # Truck Statistics
+    # ==================================================
 
     truck_utilization: dict = field(default_factory=dict)
+
+    truck_distance: dict = field(default_factory=dict)
+
+    truck_profit: dict = field(default_factory=dict)
+
+    truck_weight: dict = field(default_factory=dict)
+
+    truck_volume: dict = field(default_factory=dict)
+
+    # ==================================================
+    # Simulated Annealing
+    # ==================================================
+
+    before_sa_distance: float = 0.0
+
+    after_sa_distance: float = 0.0
+
+    distance_saved: float = 0.0

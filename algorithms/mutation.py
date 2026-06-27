@@ -6,13 +6,11 @@ Mutation operators for the Genetic Algorithm.
 
 import random
 
-from config import MUTATION_RATE
-
 
 class Mutation:
 
     @staticmethod
-    def mutate(chromosome, truck_count):
+    def mutate(chromosome, truck_count, mutation_rate):
         """
         Applies mutation to a chromosome.
         """
@@ -25,7 +23,7 @@ class Mutation:
         # Truck Assignment Mutation
         # -----------------------------------------
 
-        if random.random() < MUTATION_RATE:
+        if random.random() < mutation_rate:
 
             index = random.randint(
                 0,
@@ -41,7 +39,7 @@ class Mutation:
         # Priority Swap Mutation
         # -----------------------------------------
 
-        if random.random() < MUTATION_RATE:
+        if random.random() < mutation_rate:
 
             i1, i2 = random.sample(
                 range(goods_count),

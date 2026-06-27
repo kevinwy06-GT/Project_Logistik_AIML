@@ -44,6 +44,8 @@ class FitnessCalculator:
                     chromosome
                 )
 
+                total_profit += truck_result["profit"]
+
         chromosome.fitness = total_profit
 
         return total_profit
@@ -120,23 +122,6 @@ class FitnessCalculator:
                 * BASE_REVENUE_PER_KG_KM
             )
 
-            # distance += self.routes[
-            #     current_city
-            # ][
-            #     item.destination_city
-            # ]["distance"]
-
-            # toll += self.routes[
-            #     current_city
-            # ][
-            #     item.destination_city
-            # ]["toll"]
-
-            # current_city = item.destination_city
-
-            # If already in the destination city,
-            # there is no travel cost.
-
             if current_city != item.destination_city:
 
                 distance += self.routes[current_city][item.destination_city]["distance"]
@@ -145,22 +130,9 @@ class FitnessCalculator:
 
             current_city = item.destination_city
 
-            # ---------
-
             total_weight += item.weight_kg
             total_volume += item.volume_m3
 
-        # distance += self.routes[
-        #     current_city
-        # ][
-        #     WAREHOUSE_CITY
-        # ]["distance"]
-
-        # toll += self.routes[
-        #     current_city
-        # ][
-        #     WAREHOUSE_CITY
-        # ]["toll"]
 
         if current_city != WAREHOUSE_CITY:
 
@@ -185,5 +157,81 @@ class FitnessCalculator:
             total_volume > truck.max_volume_m3
         ):
             profit *= 0.1
+    
+        return {
 
-        return profit
+            "profit": profit,
+
+            "revenue": revenue,
+
+            "distance": distance,
+
+            "toll": toll,
+
+            "operating_cost": operating_cost,
+
+            "weight": total_weight,
+
+            "volume": total_volume
+
+        }
+    
+
+    # =====================================================
+    # PUBLIC SUMMARY
+    # =====================================================
+
+    def build_summary(self, chromosome):
+        """
+        Build a detailed summary of the optimization result.
+        This does NOT change the fitness calculation.
+        """
+
+        summary = {
+            "total_distance": 0.0,
+            "total_operating_cost": 0.0,
+            "total_toll_cost": 0.0,
+            "total_revenue": 0.0,
+            "net_profit": 0.0,
+            "truck_utilization": {},
+            "truck_distance": {},
+            "truck_profit": {},
+            "truck_weight": {},
+            "truck_volume": {},
+        }
+
+        truck_loads = self._group_goods_by_truck(chromosome)
+
+        for truck_index, item_indices in truck_loads.items():
+
+            if truck_index >= len(self.trucks):
+                continue
+
+            truck = self.trucks[truck_index]
+
+            total_weight = 0
+            total_volume = 0
+
+            for idx in item_indices:
+
+                item = self.goods[idx]
+
+                total_weight += item.weight_kg
+                total_volume += item.volume_m3
+
+            utilization = (
+                total_weight / truck.max_weight_kg
+                if truck.max_weight_kg > 0
+                else 0
+            )
+
+            summary["truck_utilization"][truck.truck_id] = round(
+                utilization * 100,
+                2,
+            )
+
+            summary["truck_weight"][truck.truck_id] = total_weight
+
+            summary["truck_volume"][truck.truck_id] = total_volume
+
+        return summary

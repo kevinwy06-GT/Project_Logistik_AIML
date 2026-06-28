@@ -26,9 +26,8 @@ class Population:
 
         self.chromosomes.clear()
 
+        # warehouse gene
         warehouse_id = truck_count
-
-        from config import POPULATION_SIZE
 
         for _ in range(population_size):
 
@@ -44,7 +43,7 @@ class Population:
 
             chromosome = Chromosome(
                 truck_assignment=truck_assignment,
-                priorities=priorities
+                priorities=priorities,
             )
 
             self.chromosomes.append(chromosome)
@@ -56,7 +55,7 @@ class Population:
 
         return max(
             self.chromosomes,
-            key=lambda chromosome: chromosome.fitness
+            key=lambda chromosome: chromosome.fitness,
         )
 
     def sort(self):
@@ -66,7 +65,7 @@ class Population:
 
         self.chromosomes.sort(
             key=lambda chromosome: chromosome.fitness,
-            reverse=True
+            reverse=True,
         )
 
     def add(self, chromosome):

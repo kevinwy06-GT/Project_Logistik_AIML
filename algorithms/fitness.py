@@ -38,7 +38,8 @@ class FitnessCalculator:
             if truck_index >= len(self.trucks):
                 total_profit += self._warehouse_penalty(item_indices)
             else:
-                total_profit += self._truck_profit(
+
+                truck_result = self._truck_profit(
                     truck_index,
                     item_indices,
                     chromosome
@@ -183,8 +184,8 @@ class FitnessCalculator:
 
     def build_summary(self, chromosome):
         """
-        Build a detailed summary of the optimization result.
-        This does NOT change the fitness calculation.
+        Builds a complete business summary from the chromosome.
+        Reuses _truck_profit() so all calculations stay consistent.
         """
 
         summary = {
@@ -209,29 +210,32 @@ class FitnessCalculator:
 
             truck = self.trucks[truck_index]
 
-            total_weight = 0
-            total_volume = 0
+            result = self._truck_profit(
+                truck_index,
+                item_indices,
+                chromosome,
+            )
 
-            for idx in item_indices:
+            summary["total_distance"] += result["distance"]
+            summary["total_operating_cost"] += result["operating_cost"]
+            summary["total_toll_cost"] += result["toll"]
+            summary["total_revenue"] += result["revenue"]
+            summary["net_profit"] += result["profit"]
 
-                item = self.goods[idx]
-
-                total_weight += item.weight_kg
-                total_volume += item.volume_m3
+            summary["truck_distance"][truck.truck_id] = result["distance"]
+            summary["truck_profit"][truck.truck_id] = result["profit"]
+            summary["truck_weight"][truck.truck_id] = result["weight"]
+            summary["truck_volume"][truck.truck_id] = result["volume"]
 
             utilization = (
-                total_weight / truck.max_weight_kg
+                (result["weight"] / truck.max_weight_kg) * 100
                 if truck.max_weight_kg > 0
                 else 0
             )
 
             summary["truck_utilization"][truck.truck_id] = round(
-                utilization * 100,
+                utilization,
                 2,
             )
-
-            summary["truck_weight"][truck.truck_id] = total_weight
-
-            summary["truck_volume"][truck.truck_id] = total_volume
 
         return summary

@@ -150,3 +150,29 @@ class SimulatedAnnealing:
         ]["distance"]
 
         return total
+    
+    # =====================================================
+    # ANALYSIS
+    # =====================================================
+
+    def analyze(self, route):
+        """
+        Runs SA and returns both the original
+        and optimized route information.
+        """
+
+        before_distance = self.route_distance(route)
+
+        optimized_route = self.optimize(route)
+
+        after_distance = self.route_distance(
+            optimized_route
+        )
+
+        return {
+            "original_route": route,
+            "optimized_route": optimized_route,
+            "before_distance": before_distance,
+            "after_distance": after_distance,
+            "distance_saved": before_distance - after_distance,
+        }

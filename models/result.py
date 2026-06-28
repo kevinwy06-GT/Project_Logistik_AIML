@@ -21,6 +21,16 @@ class OptimizationResult:
     generations: int = 0
 
     # ==================================================
+    # Optimization Parameters
+    # ==================================================
+
+    population_size: int = 0
+
+    mutation_rate: float = 0.0
+
+    cooling_rate: float = 0.0
+
+    # ==================================================
     # Assignment
     # ==================================================
 

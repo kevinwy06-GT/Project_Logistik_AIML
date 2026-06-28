@@ -1,5 +1,28 @@
+"""
+dashboard_page.py
+
+Main Dashboard Page.
+"""
+
 import streamlit as st
 import pandas as pd
+
+from utils.dashboard_components import (
+    executive_summary,
+    simulated_annealing_summary,
+)
+
+from utils.dashboard_tables import (
+    truck_assignment_table,
+    route_table,
+    rejected_goods_table,
+)
+
+from utils.charts import (
+    show_truck_utilization,
+    show_truck_profit,
+    show_truck_distance,
+)
 
 
 def show():
@@ -9,43 +32,35 @@ def show():
     if "optimization_result" not in st.session_state:
 
         st.warning(
-            "No optimization has been run yet.\n\nGo to the Optimization page first."
+            "No optimization has been run yet.\n\n"
+            "Go to the Optimization page first."
         )
 
         return
 
     result = st.session_state["optimization_result"]
 
-    # ====================================================
-    # TOP METRICS
-    # ====================================================
+    # ==========================================================
+    # Executive Summary
+    # ==========================================================
 
-    st.subheader("Summary")
-
-    col1, col2, col3 = st.columns(3)
-
-    col1.metric(
-        "Generations",
-        result.generations
-    )
-
-    col2.metric(
-        "Best Fitness",
-        f"{result.best_chromosome.fitness:,.2f}"
-    )
-
-    col3.metric(
-        "Rejected Goods",
-        len(result.rejected_goods)
-    )
+    executive_summary(result)
 
     st.divider()
 
-    # ====================================================
-    # FITNESS HISTORY
-    # ====================================================
+    # ==========================================================
+    # Simulated Annealing Summary
+    # ==========================================================
 
-    st.subheader("Fitness History")
+    simulated_annealing_summary(result)
+
+    st.divider()
+
+    # ==========================================================
+    # Fitness History
+    # ==========================================================
+
+    st.subheader("📈 Fitness History")
 
     history = pd.DataFrame(
         {
@@ -53,7 +68,7 @@ def show():
                 1,
                 len(result.fitness_history) + 1
             ),
-            "Fitness": result.fitness_history
+            "Fitness": result.fitness_history,
         }
     )
 
@@ -63,95 +78,32 @@ def show():
 
     st.divider()
 
-    # ====================================================
-    # TRUCK ASSIGNMENTS
-    # ====================================================
+    # ==========================================================
+    # Charts
+    # ==========================================================
 
-    st.subheader("Truck Assignments")
-
-    for truck, goods in result.truck_assignments.items():
-
-        with st.expander(truck, expanded=True):
-
-            if len(goods) == 0:
-
-                st.info("No goods assigned.")
-
-                continue
-
-            table = []
-
-            for item in goods:
-
-                table.append(
-                    {
-                        "Item ID": item.item_id,
-                        "Item": item.item_name,
-                        "Destination": item.destination_city,
-                        "Weight": item.weight_kg,
-                        "Volume": item.volume_m3,
-                    }
-                )
-
-            st.dataframe(
-                pd.DataFrame(table),
-                use_container_width=True,
-                hide_index=True
-            )
+    show_truck_utilization(result)
 
     st.divider()
 
-    # ====================================================
-    # ROUTES
-    # ====================================================
-
-    st.subheader("Optimized Routes")
-
-    for truck, route in result.routes.items():
-
-        st.markdown(f"### {truck}")
-
-        if len(route) == 0:
-
-            st.info("No destination.")
-
-        else:
-
-            st.success(
-                " ➜ ".join(
-                    ["Surabaya"] + route + ["Surabaya"]
-                )
-            )
+    show_truck_profit(result)
 
     st.divider()
 
-    # ====================================================
-    # REJECTED GOODS
-    # ====================================================
+    show_truck_distance(result)
 
-    st.subheader("Rejected Goods")
+    st.divider()
 
-    if len(result.rejected_goods) == 0:
+    # ==========================================================
+    # Tables
+    # ==========================================================
 
-        st.success("No rejected goods.")
+    truck_assignment_table(result)
 
-    else:
+    st.divider()
 
-        table = []
+    route_table(result)
 
-        for item in result.rejected_goods:
+    st.divider()
 
-            table.append(
-                {
-                    "Item ID": item.item_id,
-                    "Item": item.item_name,
-                    "Destination": item.destination_city,
-                    "Weight": item.weight_kg,
-                }
-            )
-
-        st.dataframe(
-            pd.DataFrame(table),
-            use_container_width=True,
-            hide_index=True
-        )
+    rejected_goods_table(result)

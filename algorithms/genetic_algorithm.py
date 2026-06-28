@@ -150,6 +150,10 @@ class GeneticAlgorithm:
 
         result.generations = self.generations
 
+        result.population_size = self.population_size
+
+        result.mutation_rate = self.mutation_rate
+
         result.fitness_history = history
 
         result.truck_assignments = self._build_assignments(best)
